@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Parable — Real Life Explanations</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F2F2F7;
+  --surface:#FFFFFF;
+  --surface2:#F8F8FC;
+  --text:#1D1D1F;
+  --text2:#6E6E73;
+  --text3:#8E8E93;
+  --border:rgba(60,60,67,0.15);
+  --blue:#0071e3;
+  --blue-bg:rgba(0,113,227,0.08);
+  --green:#34C759;
+  --red:#FF3B30;
+  --purple:#AF52DE;
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+html,body{height:100%;overflow:hidden;background:var(--bg)}
+body{
+  font-family:'DM Sans',system-ui,sans-serif;
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;
+}
+.serif{font-family:'Lora',Georgia,serif}
+
+/* Layout */
+.app{position:fixed;inset:0;display:flex;flex-direction:column}
+.views{flex:1;min-height:0;position:relative}
+.view{
+  position:absolute;inset:0;
+  overflow-y:auto;
+  opacity:0;visibility:hidden;
+  transition:opacity .18s ease,visibility .18s;
+  -webkit-overflow-scrolling:touch;
+  padding-bottom:24px;
+}
+.view.active{opacity:1;visibility:visible;z-index:1}
+.inner{max-width:660px;margin:0 auto;padding:0 20px}
+
+/* Tab Bar */
+.tab-bar{
+  flex-shrink:0;
+  height:calc(64px + var(--safe-bottom));
+  padding-bottom:var(--safe-bottom);
+  background:rgba(255,255,255,0.92);
+  backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
+  border-top:.5px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  position:relative;z-index:50;
+}
+.tab-inner{
+  display:flex;align-items:center;
+  width:100%;max-width:560px;
+  padding:0 8px;
+  gap:2px;
+}
+.tab-btn{
+  flex:1;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:3px;
+  background:none;border:none;cursor:pointer;
+  padding:6px 4px 4px;
+  color:var(--text3);
+  border-radius:12px;
+  transition:color .15s,background .15s;
+  min-width:0;
+}
+.tab-btn:active{background:rgba(0,0,0,0.04)}
+.tab-btn.active{color:var(--blue)}
+.tab-btn.active .tab-icon-wrap{background:rgba(0,113,227,0.1)}
+.tab-icon-wrap{
+  width:44px;height:28px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:10px;
+  transition:background .15s;
+  margin-bottom:1px;
+}
+.tab-btn svg{width:22px;height:22px;stroke-width:2;fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.tab-label{font-size:10px;font-weight:500;letter-spacing:.1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:62px;text-align:center}
+
+/* Page Headers */
+.page-title{font-size:36px;font-weight:700;letter-spacing:-.5px;padding-top:56px;margin-bottom:4px}
+.page-sub{font-size:15px;color:var(--text2);margin-bottom:24px}
+
+/* Cards */
+.card{
+  background:var(--surface);
+  border-radius:18px;
+  border:.5px solid var(--border);
+  padding:20px;
+  margin-bottom:12px;
+}
+
+/* Textarea */
+textarea,input[type=text]{
+  width:100%;background:var(--surface);
+  border-radius:14px;border:.5px solid var(--border);
+  color:var(--text);font-family:inherit;font-size:17px;
+  padding:14px 16px;outline:none;
+  transition:border-color .2s,box-shadow .2s;
+  -webkit-appearance:none;resize:none;
+}
+textarea:focus,input[type=text]:focus{
+  border-color:var(--blue);
+  box-shadow:0 0 0 3px rgba(0,113,227,.1);
+}
+textarea{line-height:1.5}
+::placeholder{color:var(--text3)}
+
+/* Buttons */
+.btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  border:none;border-radius:14px;
+  font-family:inherit;font-size:17px;font-weight:600;
+  cursor:pointer;padding:15px 20px;width:100%;
+  transition:opacity .15s,transform .1s;
+  -webkit-appearance:none;
+}
+.btn:active{transform:scale(.98);opacity:.9}
+.btn:disabled{opacity:.5;cursor:default}
+.btn-blue{background:var(--blue);color:#fff}
+.btn-green{background:var(--green);color:#fff}
+.btn-purple{background:var(--purple);color:#fff}
+
+/* Toggle */
+.toggle-row{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--surface);border-radius:14px;border:.5px solid var(--border);
+  padding:12px 16px;margin-bottom:12px;cursor:pointer;
+}
+.toggle-label{font-size:16px}
+.toggle-wrap{position:relative;display:inline-flex;align-items:center}
+input[type=checkbox]{display:none}
+.toggle-track{
+  width:44px;height:26px;background:#E3E3E8;border-radius:13px;
+  position:relative;transition:background .2s;cursor:pointer;
+}
+input[type=checkbox]:checked+.toggle-track{background:var(--green)}
+.toggle-thumb{
+  position:absolute;top:2px;left:2px;
+  width:22px;height:22px;background:#fff;border-radius:50%;
+  transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);
+}
+input[type=checkbox]:checked~.toggle-thumb{transform:translateX(18px)}
+
+/* Audience Chips */
+.section-label{font-size:12px;font-weight:600;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;padding:2px 0}
+.chip{
+  padding:8px 16px;border-radius:20px;
+  background:var(--surface);border:.5px solid var(--border);
+  font-size:14px;font-weight:500;color:var(--text);
+  cursor:pointer;transition:all .15s;white-space:nowrap;
+  font-family:inherit;
+}
+.chip.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+
+/* Result Card */
+.result-card{background:var(--surface);border-radius:18px;border:.5px solid var(--border);padding:22px 22px 16px;margin-top:16px}
+.result-badge{font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;padding:3px 8px;border-radius:6px}
+.result-title{font-size:22px;font-weight:700;letter-spacing:-.3px;margin:10px 0 12px}
+.result-body{font-size:19px;line-height:1.65;color:rgba(29,29,31,.88)}
+.result-footer{display:flex;justify-content:flex-end;padding-top:12px;margin-top:12px;border-top:.5px solid var(--border)}
+.copy-btn{background:none;border:none;color:var(--blue);font-size:15px;font-weight:500;cursor:pointer;padding:4px 8px;border-radius:8px;font-family:inherit;transition:opacity .15s}
+.copy-btn:active{opacity:.6}
+
+/* Spinner */
+.spinner{display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner-dark{border-color:rgba(0,0,0,.15);border-top-color:var(--text3)}
+
+/* Segmented */
+.segmented{display:flex;background:#E3E3E8;border-radius:10px;padding:2px;gap:0;margin-bottom:16px}
+.seg-btn{flex:1;text-align:center;font-size:12px;font-weight:500;padding:7px 4px;border-radius:8px;color:var(--text);border:none;background:none;cursor:pointer;transition:all .15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:inherit}
+.seg-btn.active{background:#fff;font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.seg-btn.danger{color:var(--red)}
+
+/* Search */
+.search-wrap{position:relative;margin-bottom:12px}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none}
+input.search-input{padding-left:38px;background:#E3E3E8;border:none;font-size:16px}
+input.search-input:focus{border:none;box-shadow:none;background:#D1D1D6}
+
+/* History Item */
+.hist-item{background:var(--surface);border-radius:16px;border:.5px solid var(--border);padding:16px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start}
+.hist-check{width:22px;height:22px;border-radius:6px;border:1.5px solid #C7C7CC;cursor:pointer;accent-color:var(--blue);flex-shrink:0;margin-top:2px}
+.hist-body{flex:1;min-width:0}
+.hist-meta{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.hist-date{font-size:12px;color:var(--text3);font-weight:500}
+.mode-badge{font-size:10px;font-weight:700;text-transform:uppercase;padding:2px 6px;border-radius:5px;background:#F2F2F7;color:var(--text2);letter-spacing:.4px}
+.hist-prompt{color:var(--blue);font-size:13px;font-weight:600;margin-bottom:4px}
+.hist-title{font-size:20px;font-weight:700;letter-spacing:-.2px;margin-bottom:6px}
+.hist-story{font-size:16px;line-height:1.6;color:rgba(29,29,31,.75);font-family:'Lora',serif}
+.hist-actions{display:flex;gap:4px;margin-left:auto;flex-shrink:0}
+.icon-btn{background:none;border:none;cursor:pointer;padding:7px;border-radius:50%;color:var(--blue);transition:background .15s;display:flex;align-items:center;justify-content:center}
+.icon-btn:active{background:var(--blue-bg)}
+.icon-btn svg{width:17px;height:17px;stroke-width:2;fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round}
+.icon-btn.danger{color:var(--red)}
+.icon-btn.success{color:var(--green)}
+
+/* Selection Bar */
+.sel-bar{
+  position:fixed;bottom:0;left:0;right:0;
+  height:calc(64px + var(--safe-bottom));
+  padding-bottom:var(--safe-bottom);
+  background:rgba(255,255,255,.98);
+  backdrop-filter:blur(24px);
+  border-top:.5px solid var(--border);
+  display:flex;align-items:center;
+  justify-content:space-between;padding:0 20px;
+  padding-bottom:var(--safe-bottom);
+  z-index:200;
+  opacity:0;pointer-events:none;
+  transform:translateY(8px);
+  transition:opacity .2s ease,transform .2s ease;
+}
+.sel-bar.visible{opacity:1;pointer-events:auto;transform:translateY(0)}
+.sel-info{display:flex;align-items:center;gap:10px}
+.sel-cancel{background:none;border:none;color:var(--blue);font-size:16px;font-weight:500;cursor:pointer;font-family:inherit}
+.sel-count{font-size:16px;font-weight:600}
+.sel-actions{display:flex;gap:2px}
+.sel-action{display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;cursor:pointer;padding:4px 10px;border-radius:10px;color:var(--blue);transition:background .15s;font-family:inherit}
+.sel-action:active{background:var(--blue-bg)}
+.sel-action svg{width:22px;height:22px;stroke-width:2;fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round}
+.sel-action span{font-size:10px;font-weight:500}
+.sel-action.danger{color:var(--red)}
+.sel-action.danger:active{background:rgba(255,59,48,.08)}
+.sel-action.success{color:var(--green)}
+
+/* Dictionary */
+.dict-word{font-size:42px;font-weight:700;letter-spacing:-1px;line-height:1.1}
+.dict-phonetic{font-family:monospace;font-size:17px;color:var(--text2)}
+.dict-header-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}
+.dict-play{width:36px;height:36px;border-radius:50%;background:var(--bg);border:.5px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--blue);flex-shrink:0}
+.dict-play svg{width:18px;height:18px}
+.pos-tag{font-style:italic;font-size:16px;font-weight:600;color:var(--blue);margin-bottom:10px;display:block}
+.def-text{font-size:20px;line-height:1.6;margin-bottom:6px;font-family:'Lora',serif}
+.def-example{font-style:italic;font-size:17px;color:var(--text2);padding-left:12px;border-left:3px solid var(--border);margin-top:4px;font-family:'Lora',serif}
+.meaning-block{padding-bottom:20px;margin-bottom:20px;border-bottom:.5px solid var(--border)}
+.meaning-block:last-child{border-bottom:none}
+.source-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:var(--blue);background:var(--bg);padding:7px 14px;border-radius:20px;text-decoration:none;transition:background .15s;margin-top:16px}
+.source-link:active{background:#E5E5EA}
+
+/* Image Upload */
+.upload-area{
+  background:var(--surface);border:2px dashed #C7C7CC;border-radius:18px;
+  padding:40px 20px;text-align:center;cursor:pointer;transition:all .2s;
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+}
+.upload-area:active{background:#F8F8FC}
+.upload-icon{color:var(--text3)}
+.preview-wrap{position:relative;border-radius:18px;overflow:hidden;height:200px;margin-bottom:12px}
+.preview-wrap img{width:100%;height:100%;object-fit:cover}
+.preview-clear{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.5);border:none;color:#fff;padding:6px;border-radius:50%;cursor:pointer;display:flex;backdrop-filter:blur(8px)}
+
+/* Toast */
+#toast{
+  position:fixed;bottom:calc(64px + var(--safe-bottom) + 12px);
+  left:50%;transform:translateX(-50%) translateY(10px);
+  background:rgba(0,0,0,.82);color:#fff;
+  padding:9px 18px;border-radius:24px;font-size:14px;font-weight:500;
+  opacity:0;pointer-events:none;transition:all .25s ease;
+  z-index:200;white-space:nowrap;
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* Empty State */
+.empty{text-align:center;padding:60px 20px;color:var(--text3)}
+.empty svg{width:48px;height:48px;stroke-width:1.5;margin:0 auto 12px;display:block;opacity:.4}
+.empty p{font-size:20px}
+
+/* Regen spin */
+@keyframes spin-regen{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.spinning{animation:spin-regen .8s linear infinite}
+
+/* Fade in */
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fade-up{animation:fadeUp .3s ease forwards}
+
+/* Responsive Desktop */
+@media(min-width:700px){
+  .page-title{padding-top:64px;font-size:42px}
+  textarea{font-size:19px}
+  .btn{font-size:18px}
+  .result-body{font-size:20px}
+  .tab-inner{max-width:480px;gap:4px}
+  .tab-btn{padding:6px 8px 4px}
+  .tab-label{font-size:11px}
+  .tab-icon-wrap{width:48px;height:30px}
+}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:4px}
+</style>
+</head>
+<body>
+<div id="toast"></div>
+
+<div class="app">
+  <div class="views">
+
+    <!-- CREATE VIEW -->
+    <div class="view active" id="view-create">
+      <div class="inner">
+        <h1 class="page-title" style="text-align:center">Parable</h1>
+        <p class="page-sub" style="text-align:center">Real life explanations.</p>
+
+        <textarea id="userInput" rows="4" placeholder="e.g. How does the internet work?" style="margin-bottom:10px;font-size:19px;padding:18px"></textarea>
+        <input type="text" id="contextInput" placeholder="Analogy theme (e.g. Soccer, Cooking) — Optional" style="margin-bottom:10px">
+
+        <label class="toggle-row" for="webSearchToggle">
+          <span class="toggle-label">Use Current Events</span>
+          <div class="toggle-wrap">
+            <input type="checkbox" id="webSearchToggle">
+            <div class="toggle-track"></div>
+            <div class="toggle-thumb"></div>
+          </div>
+        </label>
+
+        <div style="margin-bottom:20px">
+          <div class="section-label">Audience</div>
+          <div class="chips" id="audienceChips">
+            <button class="chip active" data-v="Adult">Adult</button>
+            <button class="chip" data-v="Professional">Professional</button>
+            <button class="chip" data-v="Educational">Educational</button>
+            <button class="chip" data-v="Elementary">Elementary</button>
+            <button class="chip" data-v="Middle School">Middle School</button>
+            <button class="chip" data-v="Teenager">Teenager</button>
+          </div>
+        </div>
+
+        <button class="btn btn-blue" id="generateBtn"><span id="genText">Generate</span><span id="genSpinner" class="spinner" style="display:none"></span></button>
+
+        <div id="resultArea" style="display:none">
+          <div class="result-card fade-up">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+              <div id="storyTitle" class="result-title" style="margin:0;flex:1;padding-right:10px"></div>
+              <span id="storyBadge" class="result-badge" style="background:#EEF5FF;color:#185FA5;flex-shrink:0"></span>
+            </div>
+            <p id="storyBody" class="result-body serif" style="margin-top:12px"></p>
+            <div class="result-footer"><button class="copy-btn" id="copyCreate">Copy</button></div>
+          </div>
+        </div>
+
+        <div id="errorCreate" style="display:none;margin-top:12px;text-align:center">
+          <p style="color:var(--red);font-size:14px;background:rgba(255,59,48,.08);display:inline-block;padding:8px 16px;border-radius:10px" id="errorText"></p>
+        </div>
+
+        <div style="text-align:center;margin:24px 0 8px">
+          <div style="display:inline-flex;align-items:center;gap:6px">
+            <div id="statusDot" style="width:7px;height:7px;border-radius:50%;background:#C7C7CC;transition:background .4s"></div>
+            <span id="statusText" style="font-size:12px;color:var(--text3);font-weight:500">Ready</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LENS VIEW -->
+    <div class="view" id="view-lens">
+      <div class="inner">
+        <h1 class="page-title" style="text-align:center">Lens</h1>
+        <p class="page-sub" style="text-align:center">Analogies from photos.</p>
+
+        <input type="file" id="lensFileInput" accept="image/*" capture="environment" style="display:none">
+        <div id="lensUploadArea" class="upload-area" style="margin-bottom:12px">
+          <svg class="upload-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+          <span style="font-size:17px;font-weight:500">Take a Photo or Upload</span>
+          <span style="font-size:13px;color:var(--text3)">Tap to choose image</span>
+        </div>
+        <div id="lensPreviewArea" style="display:none;margin-bottom:12px">
+          <div class="preview-wrap">
+            <img id="lensPreview" src="" alt="Preview">
+            <button id="lensClearImg" class="preview-clear">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <input type="text" id="lensContext" placeholder="Specific focus (optional)" style="margin-bottom:10px">
+
+        <div style="margin-bottom:20px">
+          <div class="section-label">Audience</div>
+          <div class="chips" id="lensAudienceChips">
+            <button class="chip active" data-v="Adult">Adult</button>
+            <button class="chip" data-v="Professional">Professional</button>
+            <button class="chip" data-v="Educational">Educational</button>
+            <button class="chip" data-v="Elementary">Elementary</button>
+            <button class="chip" data-v="Teenager">Teenager</button>
+          </div>
+        </div>
+
+        <button class="btn btn-purple" id="lensBtn" disabled><span id="lensText">Analyze Image</span><span id="lensSpinner" class="spinner" style="display:none"></span></button>
+
+        <div id="lensResult" style="display:none">
+          <div class="result-card fade-up">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+              <div id="lensTitle" class="result-title" style="margin:0;flex:1;padding-right:10px"></div>
+              <span class="result-badge" style="background:#F5EEF8;color:#6C3483">Lens</span>
+            </div>
+            <p id="lensBody" class="result-body serif" style="margin-top:12px"></p>
+            <div class="result-footer"><button class="copy-btn" id="copyLens">Copy</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HISTORY VIEW -->
+    <div class="view" id="view-history">
+      <div class="inner">
+        <h1 class="page-title">History</h1>
+
+        <div class="search-wrap">
+          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="search-input" type="text" id="searchInput" placeholder="Search saved items" autocomplete="off">
+        </div>
+
+        <div class="segmented" id="histFilter">
+          <button class="seg-btn active" data-f="all">All</button>
+          <button class="seg-btn" data-f="explanations">Expl.</button>
+          <button class="seg-btn" data-f="bible">Scripture</button>
+          <button class="seg-btn" data-f="dictionary">Dict.</button>
+          <button class="seg-btn danger" data-f="trash">Trash</button>
+        </div>
+
+        <div id="historyList"></div>
+      </div>
+    </div>
+
+    <!-- SCRIPTURE VIEW -->
+    <div class="view" id="view-scripture">
+      <div class="inner">
+        <h1 class="page-title" style="text-align:center">Scripture</h1>
+        <p class="page-sub" style="text-align:center">Historical &amp; cultural context.</p>
+
+        <textarea id="bibleInput" rows="3" placeholder="e.g. John 3:16 or Parable of the Sower" style="margin-bottom:10px;font-size:19px;padding:18px"></textarea>
+
+        <label class="toggle-row" for="bibleSearchToggle">
+          <span class="toggle-label">Search for Latest Info</span>
+          <div class="toggle-wrap">
+            <input type="checkbox" id="bibleSearchToggle">
+            <div class="toggle-track"></div>
+            <div class="toggle-thumb"></div>
+          </div>
+        </label>
+
+        <button class="btn btn-green" id="bibleBtn" style="margin-bottom:16px"><span id="bibleText">Get Context</span><span id="bibleSpinner" class="spinner" style="display:none"></span></button>
+
+        <div id="bibleResult" style="display:none">
+          <div class="result-card fade-up">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+              <div id="bibleTitle" class="result-title" style="margin:0;flex:1;padding-right:10px"></div>
+              <span class="result-badge" style="background:#EAFAF1;color:#0A6B3A">Context</span>
+            </div>
+            <p id="bibleBody" class="result-body serif" style="margin-top:12px;white-space:pre-wrap"></p>
+            <div class="result-footer"><button class="copy-btn" id="copyBible" style="color:var(--green)">Copy</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DICTIONARIES VIEW -->
+    <div class="view" id="view-dictionaries">
+      <div class="inner">
+        <h1 class="page-title">Dictionaries</h1>
+
+        <div class="search-wrap">
+          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="search-input" type="text" id="dictInput" placeholder="Search dictionary..." autocomplete="off" style="font-size:18px;padding:12px 12px 12px 40px">
+        </div>
+
+        <div class="segmented" id="dictSeg">
+          <button class="seg-btn active" data-d="cambridge">Cambridge</button>
+          <button class="seg-btn" data-d="merriam">Merriam</button>
+        </div>
+
+        <div id="dictPlaceholder" class="empty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+          <p>Type a word above to look up</p>
+        </div>
+        <div id="dictLoading" style="display:none;text-align:center;padding:40px">
+          <div class="spinner spinner-dark" style="border-top-color:var(--text3);margin:0 auto"></div>
+        </div>
+        <div id="dictResult" class="serif" style="display:none"></div>
+      </div>
+    </div>
+
+  </div><!-- /views -->
+
+  <!-- Tab Bar -->
+  <div class="tab-bar" id="tabBar">
+    <div class="tab-inner">
+      <button class="tab-btn active" data-view="create" id="tab-create">
+        <div class="tab-icon-wrap"><svg viewBox="0 0 24 24"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/></svg></div>
+        <span class="tab-label">Create</span>
+      </button>
+      <button class="tab-btn" data-view="lens" id="tab-lens">
+        <div class="tab-icon-wrap"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+        <span class="tab-label">Lens</span>
+      </button>
+      <button class="tab-btn" data-view="history" id="tab-history">
+        <div class="tab-icon-wrap"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <span class="tab-label">History</span>
+      </button>
+      <button class="tab-btn" data-view="scripture" id="tab-scripture">
+        <div class="tab-icon-wrap"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
+        <span class="tab-label">Scripture</span>
+      </button>
+      <button class="tab-btn" data-view="dictionaries" id="tab-dictionaries">
+        <div class="tab-icon-wrap"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+        <span class="tab-label">Dict.</span>
+      </button>
+    </div>
+  </div>
+</div><!-- /app -->
+
+<!-- Selection Bar -->
+<div class="sel-bar" id="selBar">
+  <div class="sel-info">
+    <button class="sel-cancel" id="selCancel">Cancel</button>
+    <span class="sel-count" id="selCount">0 Selected</span>
+  </div>
+  <div class="sel-actions" id="selActions"></div>
+</div>
+
+<script>
+// ─── STATE ──────────────────────────────────────────────────────────────
+let history = JSON.parse(localStorage.getItem('parable_history') || '[]');
+let currentFilter = 'all';
+let currentTab = localStorage.getItem('parable_tab') || 'create';
+let currentAudience = 'Adult';
+let lensAudience = 'Adult';
+let currentDict = 'cambridge';
+let lensB64 = null, lensMime = null;
+let dictDebounce = null;
+
+// ─── SAVE / LOAD ─────────────────────────────────────────────────────────
+function saveHistory() { localStorage.setItem('parable_history', JSON.stringify(history)); }
+function addItem(item) {
+  item.id = Date.now().toString(36) + Math.random().toString(36).slice(2);
+  item.ts = Date.now();
+  item.date = new Date().toLocaleDateString();
+  item.deleted = false;
+  history.unshift(item);
+  saveHistory();
+  renderHistory();
+}
+
+// ─── NAVIGATION ──────────────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+  currentTab = name; localStorage.setItem('parable_tab', name);
+  cancelSelection();
+}
+document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => switchTab(b.dataset.view)));
+switchTab(currentTab);
+
+// ─── CHIP SELECTORS ───────────────────────────────────────────────────────
+function makeChipGroup(containerId, onSelect) {
+  document.getElementById(containerId).addEventListener('click', e => {
+    const chip = e.target.closest('.chip');
+    if (!chip) return;
+    document.querySelectorAll(`#${containerId} .chip`).forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    onSelect(chip.dataset.v);
+  });
+}
+makeChipGroup('audienceChips', v => currentAudience = v);
+makeChipGroup('lensAudienceChips', v => lensAudience = v);
+
+// ─── API (OpenRouter via Vercel proxy) ───────────────────────────────────
+const API_ENDPOINT = '/api/gemini';
+
+async function callClaude(prompt, imageData) {
+  const body = { prompt };
+  if (imageData) body.imageData = { mime: imageData.mime, b64: imageData.b64 };
+
+  const res = await fetch(API_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) throw new Error('API error: ' + res.status);
+  const data = await res.json();
+  const text = data.text || '';
+  return JSON.parse(text.replace(/```json|```/g, '').trim());
+}
+
+// Fast model for dictionary lookups
+async function callClaudeDict(prompt) {
+  const res = await fetch(API_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt, fast: true })
+  });
+  if (!res.ok) throw new Error('API error: ' + res.status);
+  const data = await res.json();
+  const text = data.text || '';
+  return JSON.parse(text.replace(/```json|```/g, '').trim());
+}
+
+// Dict cache: persisted in localStorage, keyed by "word::style"
+const DICT_CACHE_KEY = 'parable_dict_cache';
+let dictCache = {};
+try { dictCache = JSON.parse(localStorage.getItem(DICT_CACHE_KEY) || '{}'); } catch(e) { dictCache = {}; }
+function saveDictCache() {
+  const keys = Object.keys(dictCache);
+  if (keys.length > 200) keys.slice(0, keys.length - 200).forEach(k => delete dictCache[k]);
+  try { localStorage.setItem(DICT_CACHE_KEY, JSON.stringify(dictCache)); } catch(e) {}
+}
+
+// ─── CREATE ───────────────────────────────────────────────────────────────
+document.getElementById('generateBtn').addEventListener('click', async () => {
+  const input = document.getElementById('userInput').value.trim();
+  const theme = document.getElementById('contextInput').value.trim();
+  if (!input) { document.getElementById('userInput').focus(); return; }
+
+  setLoading('generate', true);
+  document.getElementById('resultArea').style.display = 'none';
+  document.getElementById('errorCreate').style.display = 'none';
+
+  let task = `Explain "${input}" using a real-life analogy.`;
+  if (theme) task = `Explain "${input}" using an analogy specifically about "${theme}".`;
+
+  const prompt = `You are a helpful explainer. Audience: ${currentAudience}.
+Task: ${task}
+Rules:
+- Choose a UNIQUE, non-cliché analogy (imagine 100 options, pick an unexpected one).
+- Keep it to 3-4 sentences max.
+- If Elementary: very simple words about toys/school/home.
+- If Professional: corporate/industry context.
+- If Teenager: casual, relatable, not cringe.
+Return ONLY valid JSON: {"title":"Title","story":"Story."}`;
+
+  try {
+    const data = await callClaude(prompt);
+    document.getElementById('storyTitle').textContent = data.title;
+    document.getElementById('storyBody').textContent = data.story;
+    document.getElementById('storyBadge').textContent = currentAudience;
+    document.getElementById('resultArea').style.display = 'block';
+    addItem({ prompt: input + (theme ? ` (${theme})` : ''), title: data.title, story: data.story, mode: currentAudience });
+    toast('Auto-Saved');
+  } catch(e) {
+    document.getElementById('errorText').textContent = 'Failed to generate. Please try again.';
+    document.getElementById('errorCreate').style.display = 'block';
+  }
+  setLoading('generate', false);
+});
+
+document.getElementById('copyCreate').addEventListener('click', () => {
+  copyText(document.getElementById('storyTitle').textContent + '\n\n' + document.getElementById('storyBody').textContent);
+});
+
+// ─── SCRIPTURE ────────────────────────────────────────────────────────────
+document.getElementById('bibleBtn').addEventListener('click', async () => {
+  const input = document.getElementById('bibleInput').value.trim();
+  if (!input) { document.getElementById('bibleInput').focus(); return; }
+
+  setLoading('bible', true);
+  document.getElementById('bibleResult').style.display = 'none';
+
+  const prompt = `You are a biblical historian and theologian.
+Task: Provide factual, historical, and literary context for: "${input}"
+Requirements:
+1. Focus on facts: Author, Approximate Date, Original Audience, Cultural Setting, Immediate Context.
+2. No fiction, no sermonizing, no devotional language.
+3. History over application — what was happening then.
+4. 150-200 words max.
+Return ONLY valid JSON: {"title":"Reference or Topic","story":"Context text."}`;
+
+  try {
+    const data = await callClaude(prompt);
+    document.getElementById('bibleTitle').textContent = data.title;
+    document.getElementById('bibleBody').textContent = data.story;
+    document.getElementById('bibleResult').style.display = 'block';
+    addItem({ prompt: input, title: data.title, story: data.story, mode: 'Bible' });
+    toast('Context Saved');
+  } catch(e) { toast('Failed to get context'); }
+  setLoading('bible', false);
+});
+
+document.getElementById('copyBible').addEventListener('click', () => {
+  copyText(document.getElementById('bibleTitle').textContent + '\n\n' + document.getElementById('bibleBody').textContent);
+});
+
+// ─── LENS ─────────────────────────────────────────────────────────────────
+document.getElementById('lensUploadArea').addEventListener('click', () => document.getElementById('lensFileInput').click());
+
+document.getElementById('lensFileInput').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const url = ev.target.result;
+    const [meta, b64] = url.split(',');
+    lensMime = meta.match(/:(.*?);/)[1];
+    lensB64 = b64;
+    document.getElementById('lensPreview').src = url;
+    document.getElementById('lensUploadArea').style.display = 'none';
+    document.getElementById('lensPreviewArea').style.display = 'block';
+    document.getElementById('lensBtn').disabled = false;
+  };
+  reader.readAsDataURL(file);
+});
+
+document.getElementById('lensClearImg').addEventListener('click', () => {
+  lensB64 = null; lensMime = null;
+  document.getElementById('lensFileInput').value = '';
+  document.getElementById('lensPreviewArea').style.display = 'none';
+  document.getElementById('lensUploadArea').style.display = 'flex';
+  document.getElementById('lensBtn').disabled = true;
+  document.getElementById('lensResult').style.display = 'none';
+});
+
+document.getElementById('lensBtn').addEventListener('click', async () => {
+  if (!lensB64) return;
+  const focus = document.getElementById('lensContext').value.trim();
+  setLoading('lens', true);
+  document.getElementById('lensResult').style.display = 'none';
+
+  let task = 'Analyze this image and explain what is happening using a real-life analogy.';
+  if (focus) task = `Analyze this image, focusing on "${focus}", and create a short real-life analogy.`;
+
+  const prompt = `You are a helpful explainer. Audience: ${lensAudience}.
+Task: ${task}
+Rules:
+- Do not hallucinate elements not in the image.
+- Choose a unique, non-cliché analogy.
+- Max 3-4 sentences.
+Return ONLY valid JSON: {"title":"Title","story":"Story."}`;
+
+  try {
+    const data = await callClaude(prompt, { b64: lensB64, mime: lensMime });
+    document.getElementById('lensTitle').textContent = data.title;
+    document.getElementById('lensBody').textContent = data.story;
+    document.getElementById('lensResult').style.display = 'block';
+    addItem({ prompt: 'Image Analysis' + (focus ? `: ${focus}` : ''), title: data.title, story: data.story, mode: 'Lens' });
+    toast('Analogy Saved');
+  } catch(e) { toast('Failed to analyze image'); }
+  setLoading('lens', false);
+});
+
+document.getElementById('copyLens').addEventListener('click', () => {
+  copyText(document.getElementById('lensTitle').textContent + '\n\n' + document.getElementById('lensBody').textContent);
+});
+
+// ─── DICTIONARY ───────────────────────────────────────────────────────────
+document.querySelectorAll('#dictSeg .seg-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('#dictSeg .seg-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    currentDict = b.dataset.d;
+    const w = document.getElementById('dictInput').value.trim();
+    if (w) lookupWord(w);
+  });
+});
+
+document.getElementById('dictInput').addEventListener('input', e => {
+  clearTimeout(dictDebounce);
+  const w = e.target.value.trim();
+  if (!w) {
+    document.getElementById('dictPlaceholder').style.display = 'block';
+    document.getElementById('dictResult').style.display = 'none';
+    document.getElementById('dictLoading').style.display = 'none';
+    return;
+  }
+  dictDebounce = setTimeout(() => lookupWord(w), 600);
+});
+
+document.getElementById('dictInput').addEventListener('keypress', e => {
+  if (e.key === 'Enter') { clearTimeout(dictDebounce); lookupWord(e.target.value.trim()); }
+});
+
+async function lookupWord(word) {
+  if (!word) return;
+  const cacheKey = word.toLowerCase() + '::' + currentDict;
+
+  // Instant cache hit — no loading flash
+  const cached = dictCache[cacheKey];
+  if (cached) {
+    renderDictEntry(word, cached);
+    return;
+  }
+
+  document.getElementById('dictPlaceholder').style.display = 'none';
+  document.getElementById('dictResult').style.display = 'none';
+  document.getElementById('dictLoading').style.display = 'block';
+
+  const style = currentDict === 'cambridge'
+    ? 'British English (Cambridge style). IPA phonetics, example sentences, register notes.'
+    : 'American English (Merriam-Webster style). IPA phonetics, usage notes, brief etymology if notable.';
+
+  const dictPrompt = `Dictionary entry for: "${word}". Style: ${style}.
+Return ONLY JSON: {"word":"${word}","phonetic":"/IPA/","meanings":[{"partOfSpeech":"noun","definitions":[{"definition":"...","example":"..."}]}]}
+Rules: 1-3 parts of speech, 2-3 definitions each, real IPA. If nonsense word: {"error":"Word not found"}. No markdown.`;
+
+  try {
+    const data = await callClaudeDict(dictPrompt);
+    if (data.error) throw new Error(data.error);
+
+    // Cache for instant future lookups
+    dictCache[cacheKey] = { data, dict: currentDict };
+    saveDictCache();
+    renderDictEntry(word, { data, dict: currentDict });
+  } catch(e) {
+    document.getElementById('dictLoading').style.display = 'none';
+    document.getElementById('dictResult').innerHTML = `<div class="empty" style="display:block"><p>No results found for "${word}"</p></div>`;
+    document.getElementById('dictResult').style.display = 'block';
+  }
+}
+
+function renderDictEntry(word, cached) {
+  const { data, dict } = cached;
+  const isCambridge = dict === 'cambridge';
+  const accentColor = isCambridge ? 'var(--blue)' : 'var(--green)';
+  const sourceLabel = isCambridge ? 'Cambridge Dictionary' : 'Merriam-Webster';
+  const sourceUrl = isCambridge
+    ? `https://dictionary.cambridge.org/dictionary/english/${encodeURIComponent(word)}`
+    : `https://www.merriam-webster.com/dictionary/${encodeURIComponent(word)}`;
+
+  let html = `<div class="dict-header-row">
+    <div>
+      <div class="dict-word">${data.word || word}</div>
+      ${data.phonetic ? `<div class="dict-phonetic">${data.phonetic}</div>` : ''}
+    </div>
+  </div>`;
+
+  (data.meanings || []).forEach(m => {
+    html += `<div class="meaning-block"><span class="pos-tag" style="color:${accentColor}">${m.partOfSpeech}</span>`;
+    (m.definitions || []).forEach(d => {
+      html += `<div style="margin-bottom:14px">
+        <div class="def-text">${d.definition}</div>
+        ${d.example ? `<div class="def-example">"${d.example}"</div>` : ''}
+      </div>`;
+    });
+    html += `</div>`;
+  });
+
+  html += `<a href="${sourceUrl}" target="_blank" class="source-link">${sourceLabel}
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+  </a>`;
+
+  document.getElementById('dictPlaceholder').style.display = 'none';
+  document.getElementById('dictLoading').style.display = 'none';
+  document.getElementById('dictResult').innerHTML = html;
+  document.getElementById('dictResult').style.display = 'block';
+}
+
+// ─── HISTORY ──────────────────────────────────────────────────────────────
+document.getElementById('histFilter').addEventListener('click', e => {
+  const btn = e.target.closest('.seg-btn');
+  if (!btn) return;
+  document.querySelectorAll('#histFilter .seg-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentFilter = btn.dataset.f;
+  renderHistory();
+});
+
+document.getElementById('searchInput').addEventListener('input', () => renderHistory());
+
+function getFilteredHistory() {
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  let items = [...history];
+
+  if (currentFilter === 'trash') items = items.filter(i => i.deleted);
+  else {
+    items = items.filter(i => !i.deleted);
+    if (currentFilter === 'explanations') items = items.filter(i => i.mode !== 'Dictionary' && i.mode !== 'Bible' && i.mode !== 'Lens');
+    else if (currentFilter === 'bible') items = items.filter(i => i.mode === 'Bible');
+    else if (currentFilter === 'dictionary') items = items.filter(i => i.mode === 'Dictionary');
+  }
+
+  if (q) items = items.filter(i => [i.title, i.prompt, i.story].some(t => (t||'').toLowerCase().includes(q)));
+  return items;
+}
+
+function renderHistory() {
+  const container = document.getElementById('historyList');
+  const items = getFilteredHistory();
+
+  if (!items.length) {
+    container.innerHTML = `<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><p>${currentFilter === 'trash' ? 'Trash is empty.' : 'No saved items.'}</p></div>`;
+    return;
+  }
+
+  container.innerHTML = items.map(item => {
+    const isTrash = item.deleted;
+    const showRegen = !isTrash && item.mode !== 'Dictionary' && item.mode !== 'Lens';
+
+    const actions = isTrash
+      ? `<button class="icon-btn success" onclick="restoreItem('${item.id}')" title="Restore"><svg viewBox="0 0 24 24"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></button>`
+      : `${showRegen ? `<button class="icon-btn" id="regen-${item.id}" onclick="regenItem('${item.id}')" title="Regenerate"><svg viewBox="0 0 24 24"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></button>` : ''}
+        <button class="icon-btn" onclick="copyItem('${item.id}')" title="Copy"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>`;
+
+    return `<div class="hist-item" onclick="toggleSelect('${item.id}')">
+      <input class="hist-check" type="checkbox" value="${item.id}" onchange="updateSelBar()" onclick="event.stopPropagation()">
+      <div class="hist-body">
+        <div class="hist-meta">
+          <span class="hist-date">${item.date || ''}</span>
+          <span class="mode-badge">${item.mode || 'Auto'}</span>
+        </div>
+        ${item.prompt ? `<div class="hist-prompt">${item.prompt}</div>` : ''}
+        <div class="hist-title">${item.title || 'Untitled'}</div>
+        <p class="hist-story" id="story-${item.id}">${item.story || ''}</p>
+      </div>
+      <div class="hist-actions" onclick="event.stopPropagation()">${actions}</div>
+    </div>`;
+  }).join('');
+}
+
+window.toggleSelect = id => {
+  const cb = document.querySelector(`.hist-check[value="${id}"]`);
+  if (cb) { cb.checked = !cb.checked; updateSelBar(); }
+};
+
+window.copyItem = id => {
+  const item = history.find(i => i.id === id);
+  if (item) copyText(`${item.title}\n\n${item.story}`);
+};
+
+window.restoreItem = id => {
+  const item = history.find(i => i.id === id);
+  if (item) { item.deleted = false; saveHistory(); renderHistory(); toast('Restored'); }
+};
+
+window.regenItem = async id => {
+  const item = history.find(i => i.id === id);
+  if (!item) return;
+  const btn = document.getElementById(`regen-${id}`);
+  if (btn) btn.querySelector('svg').classList.add('spinning');
+
+  const prompt = `You are a helpful explainer. Audience: ${item.mode || 'Adult'}.
+Task: Explain "${item.prompt || item.title}" using a DIFFERENT real-life analogy.
+Rules:
+- Do NOT use the same analogy as before. Previous title was: "${item.title}".
+- Choose a completely different angle.
+- Max 3-4 sentences.
+Return ONLY valid JSON: {"title":"New Title","story":"New story."}`;
+
+  try {
+    const data = await callClaude(prompt);
+    item.title = data.title; item.story = data.story; item.ts = Date.now();
+    saveHistory(); renderHistory(); toast('Regenerated');
+  } catch(e) { toast('Failed to regenerate'); }
+  if (btn) btn.querySelector('svg').classList.remove('spinning');
+};
+
+// ─── SELECTION BAR ────────────────────────────────────────────────────────
+function getSelected() {
+  return Array.from(document.querySelectorAll('.hist-check:checked')).map(c => c.value);
+}
+
+function updateSelBar() {
+  const ids = getSelected();
+  const bar = document.getElementById('selBar');
+  const tabBar = document.getElementById('tabBar');
+  document.getElementById('selCount').textContent = `${ids.length} Selected`;
+
+  if (ids.length > 0) {
+    bar.classList.add('visible');
+    const isTrash = currentFilter === 'trash';
+    document.getElementById('selActions').innerHTML = isTrash
+      ? `<button class="sel-action success" onclick="bulkRestore()"><svg viewBox="0 0 24 24"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg><span>Restore</span></button>
+         <button class="sel-action" onclick="bulkCopy()"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>Copy</span></button>
+         <button class="sel-action danger" onclick="permDelete()"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg><span>Delete</span></button>`
+      : `<button class="sel-action" onclick="bulkCopy()"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>Copy</span></button>
+         <button class="sel-action danger" onclick="bulkDelete()"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg><span>Trash</span></button>`;
+  } else {
+    bar.classList.remove('visible');
+  }
+}
+
+function cancelSelection() {
+  document.querySelectorAll('.hist-check:checked').forEach(c => c.checked = false);
+  updateSelBar();
+}
+
+window.bulkCopy = () => {
+  const ids = getSelected();
+  const text = history.filter(i => ids.includes(i.id)).map(i => `${i.title}\n\n${i.story}`).join('\n\n---\n\n');
+  copyText(text); cancelSelection();
+};
+
+window.bulkDelete = () => {
+  const ids = getSelected();
+  ids.forEach(id => { const i = history.find(h => h.id === id); if (i) i.deleted = true; });
+  saveHistory(); renderHistory(); cancelSelection(); toast('Moved to Trash');
+};
+
+window.bulkRestore = () => {
+  const ids = getSelected();
+  ids.forEach(id => { const i = history.find(h => h.id === id); if (i) i.deleted = false; });
+  saveHistory(); renderHistory(); cancelSelection(); toast('Restored');
+};
+
+window.permDelete = () => {
+  const ids = getSelected();
+  history = history.filter(i => !ids.includes(i.id));
+  saveHistory(); renderHistory(); cancelSelection(); toast('Permanently Deleted');
+};
+
+document.getElementById('selCancel').addEventListener('click', cancelSelection);
+
+// ─── UTILS ────────────────────────────────────────────────────────────────
+function setLoading(type, on) {
+  const map = { generate: ['genText','genSpinner','generateBtn','Generate'], bible: ['bibleText','bibleSpinner','bibleBtn','Get Context'], lens: ['lensText','lensSpinner','lensBtn','Analyze Image'] };
+  const [tId, sId, bId, label] = map[type];
+  document.getElementById(tId).textContent = on ? (type === 'bible' ? 'Analyzing' : 'Thinking') : label;
+  document.getElementById(sId).style.display = on ? 'inline-block' : 'none';
+  document.getElementById(bId).disabled = on;
+}
+
+function copyText(t) {
+  if (navigator.clipboard) navigator.clipboard.writeText(t).catch(() => fallbackCopy(t));
+  else fallbackCopy(t);
+  toast('Copied to clipboard');
+}
+
+function fallbackCopy(t) {
+  const el = document.createElement('textarea');
+  el.value = t; el.style.cssText = 'position:fixed;left:-9999px;top:0';
+  document.body.appendChild(el); el.select();
+  try { document.execCommand('copy'); } catch(e) {}
+  document.body.removeChild(el);
+}
+
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────
+document.getElementById('statusDot').style.background = '#34C759';
+document.getElementById('statusText').textContent = 'Ready';
+
+// Restore drafts
+const d1 = localStorage.getItem('parable_draft');
+const d2 = localStorage.getItem('parable_ctx');
+if (d1) document.getElementById('userInput').value = d1;
+if (d2) document.getElementById('contextInput').value = d2;
+
+document.getElementById('userInput').addEventListener('input', e => localStorage.setItem('parable_draft', e.target.value));
+document.getElementById('contextInput').addEventListener('input', e => localStorage.setItem('parable_ctx', e.target.value));
+
+renderHistory();
+</script>
+</body>
+</html>
